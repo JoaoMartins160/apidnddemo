@@ -14,29 +14,54 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
 
   redis:
-    image: redis:5.0.3-alpine
-    hostname: "redis_node_dnd"
+    image: redis:6.2-alpine
+    restart: always
     ports:
       - "6379:6379"
     volumes:
-      - ./redis:/data
+      - redis_volume_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 2s
+      retries: 10
+
+  redis_insight:
+    image: redislabs/redisinsight:latest
+    restart: always
+    hostname: "redis_insight_node_dnd"
+    ports:
+      - "8001:8001"
+    volumes:
+      - redis_insight_volume_data:/db
 
   app:
     build: .
     hostname: "app_node_dnd"
     ports:
-      - "8080:3300"
+      - "8080:8080"
     volumes:
-      - .:/app
+      - .:/apidnddemo
     depends_on:
       - rabbitmq
       - redis
-      - mongobd
+      - mongodb
+      - redis_insight
 
-  mongobd:
-    image: mongo:4.0.4
+  mongodb:
+    image: mongo:7.0
     hostname: "mongodb_node_dnd"
     ports:
       - "27017:27017"
     volumes:
-      - ./mongodb:/data/db
+      - mongodata:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=apidndfullstack
+      - MONGO_INITDB_ROOT_PASSWORD=tfNqdeoeN8u.
+volumes:
+  mongodata:
+    driver: local
+  redis_volume_data:
+    driver: local
+  redis_insight_volume_data:
+    driver: local
