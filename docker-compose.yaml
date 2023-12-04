@@ -3,7 +3,7 @@ version: "3.1"
 services:
   rabbitmq:
     hostname: "rabbit_node_dnd"
-    image: rabbitmq:3.7.7-management
+    image: rabbitmq:3.12.10-management
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -14,7 +14,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
 
   redis:
-    image: redis:6.2-alpine
+    image: redis:7.2
     restart: always
     ports:
       - "6379:6379"
@@ -33,7 +33,7 @@ services:
     ports:
       - "8001:8001"
     volumes:
-      - redis_insight_volume_data:/db
+      - redis_insight_volume_data:/data
 
   app:
     build: .
