@@ -14,7 +14,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
 
   redis:
-    image: redis:7.2
+    image: redis:7.2-alpine
     restart: always
     ports:
       - "6379:6379"
@@ -35,6 +35,17 @@ services:
     volumes:
       - redis_insight_volume_data:/data
 
+  mongodb:
+    image: mongo:7.0
+    hostname: "mongodb_node_dnd"
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=apidndfullstack
+      - MONGO_INITDB_ROOT_PASSWORD=tfNqdeoeN8u.
+
   app:
     build: .
     hostname: "app_node_dnd"
@@ -48,16 +59,6 @@ services:
       - mongodb
       - redis_insight
 
-  mongodb:
-    image: mongo:7.0
-    hostname: "mongodb_node_dnd"
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodata:/data/db
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=apidndfullstack
-      - MONGO_INITDB_ROOT_PASSWORD=tfNqdeoeN8u.
 volumes:
   mongodata:
     driver: local

@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const classService = require("../services/dndclassservice");
+const classService = require("../services/dndracesservice");
 
-router.post("/classes", classService.createNewClass);
-router.get("/classes", classService.getAllClasses);
-router.get("/classes/:id", classService.getClassById);
-router.put("/classes/:id", classService.updateClassById);
-router.delete("/classes/:id", classService.deleteClassById);
-router.get("/classes/:name", classService.getClassByName);
+router.post("/races", classService.createNewRace);
+router.get("/races", classService.getAllRaces);
+router.get("/races/:id", classService.getRaceById);
+router.put("/races/:id", classService.updateRaceById);
+router.delete("/races/:id", classService.deleteRaceById);
+router.get("/races/:name", classService.getRaceByName);
 
 module.exports = router;

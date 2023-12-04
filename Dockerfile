@@ -1,8 +1,7 @@
-FROM node:20.10
+FROM node:16.3.0-alpine3.13
 WORKDIR /apidnddemo
-COPY package*.json .
 RUN npm install
 COPY . .
 RUN npm install -g nodemon
-CMD ["node", "app.js"]
-EXPOSE 3300
+EXPOSE 8080
+CMD ["nodemon", "app.js"]

@@ -1,4 +1,4 @@
-const DndMonsterSchema = require("../schemas/dndmonsterschema");
+const DndMonsterSchema = require("../models/dndmonsterschema");
 
 const createNewMonster = async (req, res) => {
   const {

@@ -3,17 +3,21 @@ require("dotenv").config();
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const app = express();
-var db = "mongodb://localhost:27017";
+const db = `mongodb://apidndfullstack:tfNqdeoeN8u.@mongodb:27017`;
 
 app.use(express.json());
 
-const dbUser = process.env.DBUser;
-const dbPassword = process.env.DBPassword;
+app.use("/api", require("./src/dnd/controllers/dndmonstercontroller"));
+app.use("/api", require("./src/dnd/controllers/dndequipcontroller"));
+app.use("/api", require("./src/dnd/controllers/dndspellscontroller"));
+app.use("/api", require("./src/dnd/controllers/dndracescontroller"));
 
 mongoose
   .connect(db)
   .then(() => {
     app.listen(8080);
-    console.log("Conectou ao banco!");
+    console.log("Conexão com MongoDB estabelecida");
   })
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    console.error("Não foi possível conectar ao MongoDB", err);
+  });
