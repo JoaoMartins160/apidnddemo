@@ -154,16 +154,6 @@ const deleteMonsterById = async (req, res) => {
   }
 };
 
-const getAllMonstersbyName = async (req, res) => {
-  const { name } = req.params;
-  try {
-    const allMonsters = await DndMonsterSchema.find({ name: name });
-    res.status(200).json(allMonsters);
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
-
 const getMonsterByName = async (req, res) => {
   const { name } = req.params;
   try {
@@ -180,6 +170,5 @@ module.exports = {
   getMonsterById,
   updateMonsterById,
   deleteMonsterById,
-  getAllMonstersbyName,
   getMonsterByName,
 };
