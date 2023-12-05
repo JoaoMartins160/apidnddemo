@@ -4,8 +4,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const app = express();
 const db = `mongodb://apidndfullstack:tfNqdeoeN8u.@mongodb:27017`;
-const { createClient } = require('redis')
-const client = createClient() //passar a conexao se precisar
+const client = require("./src/cache/redisClient");
 
 app.use(express.json());
 
@@ -33,10 +32,6 @@ function checkToken(req, res, next) {
     res.status(400).json({ msg: 'Token inválido!' })
   }
 }
-
-client.on('error', err => console.log("Nao foi possivel conectar com o redis", err));
-
-await client.connect();
 
 mongoose
   .connect(db)
