@@ -4,8 +4,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const app = express();
 const db = `mongodb://apidndfullstack:tfNqdeoeN8u.@mongodb:27017`;
-const { createClient } = require('redis')
-const client = createClient() //passar a conexao se precisar
+const client = require("./src/cache/redisClient");
 
 app.use(express.json());
 
@@ -23,7 +22,3 @@ mongoose
   .catch((err) => {
     console.error("Não foi possível conectar ao MongoDB", err);
   });
-
-client.on('error', err => console.log("Nao foi possivel conectar com o redis", err));
-
-await client.connect();
