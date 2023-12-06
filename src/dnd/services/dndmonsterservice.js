@@ -158,6 +158,8 @@ const updateMonsterById = async (req, res) => {
       },
       { new: true }
     );
+    const cacheKey = `monster:${id}`;
+    await cache.del(cacheKey);
     res.status(200).json(updatedMonster);
   } catch (error) {
     res.status(500).json(error);
@@ -168,6 +170,8 @@ const deleteMonsterById = async (req, res) => {
   const { id } = req.params;
   try {
     await DndMonsterSchema.findByIdAndDelete(id);
+    const cacheKey = `monster:${id}`;
+    await cache.del(cacheKey);
     res.status(200).json("Monstro deletado com sucesso!");
   } catch (error) {
     res.status(500).json(error);
