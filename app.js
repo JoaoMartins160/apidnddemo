@@ -4,7 +4,10 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const app = express();
 const db = `mongodb://apidndfullstack:tfNqdeoeN8u.@mongodb:27017`;
+const mongoSanitize = require("express-mongo-sanitize")
+const xss = require("xss-clean")
 const client = require("./src/cache/redisClient");
+
 
 app.use(express.json());
 
@@ -12,6 +15,10 @@ app.use("/api", checkToken, require("./src/dnd/controllers/dndmonstercontroller"
 app.use("/api", checkToken, require("./src/dnd/controllers/dndequipcontroller"));
 app.use("/api", checkToken, require("./src/dnd/controllers/dndspellscontroller"));
 app.use("/api", checkToken, require("./src/dnd/controllers/dndracescontroller"));
+
+//Data sanitization
+app.use(mongoSanitize());
+app.use(xss())
 
 
 function checkToken(req, res, next) {
