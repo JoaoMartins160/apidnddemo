@@ -45,8 +45,16 @@ const createNewEquip = async (req, res) => {
 
 const getAllEquips = async (req, res) => {
   try {
-    const allEquips = await dndEquipSchema.find();
-    res.status(200).json(allEquips);
+    const cacheKey = "allEquips";
+    const cachedEquips = await cache.get(cacheKey);
+
+    if (cachedEquips) {
+      res.status(200).json(cachedEquips);
+    } else {
+      const allEquips = await dndEquipSchema.find();
+      cache.set(cacheKey, allEquips, 240);
+      res.status(200).json(allEquips);
+    }
   } catch (error) {
     res.status(500).json(error);
   }
@@ -55,8 +63,16 @@ const getAllEquips = async (req, res) => {
 const getEquipById = async (req, res) => {
   const { id } = req.params;
   try {
-    const equipById = await dndEquipSchema.findById(id);
-    res.status(200).json(equipById);
+    const cacheKey = `equip:${id}`;
+    const cachedEquips = await cache.get(cacheKey);
+
+    if (cachedEquips) {
+      res.status(200).json(cachedEquips);
+    } else {
+      const equipById = await dndEquipSchema.findById(id);
+      cache.set(cacheKey, equips, 240);
+      res.status(200).json(equipById);
+    }
   } catch (error) {
     res.status(500).json(error);
   }
@@ -102,6 +118,8 @@ const updateEquipById = async (req, res) => {
       },
       { new: true }
     );
+    const cacheKey = `equip:${id}`;
+    await cache.del(cacheKey);
     res.status(200).json(updatedEquip);
   } catch (error) {
     res.status(500).json(error);
@@ -121,8 +139,16 @@ const deleteEquipById = async (req, res) => {
 const getEquipByName = async (req, res) => {
   const { name } = req.params;
   try {
-    const equipByName = await dndEquipSchema.find({ name: name });
-    res.status(200).json(equipByName);
+    const cacheKey = `equip:${name}`;
+    const cachedEquips = await cache.get(cacheKey);
+
+    if (cachedEquips) {
+      res.status(200).json(cachedEquips);
+    } else {
+      const equipByName = await dndEquipSchema.find({ name: name });
+      cache.set(cacheKey, equip, 240);
+      res.status(200).json(equipByName);
+    }
   } catch (error) {
     res.status(500).json(error);
   }

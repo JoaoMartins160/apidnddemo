@@ -31,8 +31,16 @@ const createNewRace = async (req, res) => {
 
 const getAllRaces = async (req, res) => {
   try {
-    const allRaces = await dndRaceSchema.find();
-    res.status(200).json(allRaces);
+    const cacheKey = "allRaces";
+    const cachedRaces = await cache.get(cacheKey);
+
+    if (cachedRaces) {
+      res.status(200).json(cachedRaces);
+    } else {
+      const allRaces = await dndRaceSchema.find();
+      cache.set(cacheKey, allRaces, 240);
+      res.status(200).json(allRaces);
+    }
   } catch (error) {
     res.status(500).json(error);
   }
@@ -41,8 +49,16 @@ const getAllRaces = async (req, res) => {
 const getRaceById = async (req, res) => {
   const { id } = req.params;
   try {
-    const raceById = await dndRaceSchema.findById(id);
-    res.status(200).json(raceById);
+    const cacheKey = `races:${id}`;
+    const cachedRaces = await cache.get(cacheKey);
+
+    if (cachedRaces) {
+      res.status(200).json(cachedRaces);
+    } else {
+      const raceById = await dndRaceSchema.findById(id);
+      cache.set(cacheKey, races, 240);
+      res.status(200).json(raceById);
+    }
   } catch (error) {
     res.status(500).json(error);
   }
@@ -74,6 +90,8 @@ const updateRaceById = async (req, res) => {
       },
       { new: true }
     );
+    const cacheKey = `races:${id}`;
+    await cache.del(cacheKey);
     res.status(200).json(updatedRace);
   } catch (error) {
     res.status(500).json(error);
@@ -93,8 +111,16 @@ const deleteRaceById = async (req, res) => {
 const getRaceByName = async (req, res) => {
   const { name } = req.params;
   try {
-    const raceByName = await dndRaceSchema.find({ name: name });
-    res.status(200).json(raceByName);
+    const cacheKey = `races:${name}`;
+    const cachedRaces = await cache.get(cacheKey);
+
+    if (cachedRaces) {
+      res.status(200).json(cachedRaces);
+    } else {
+      const raceByName = await dndRaceSchema.find({ name: name });
+      cache.set(cacheKey, races, 240);
+      res.status(200).json(raceByName);
+    }
   } catch (error) {
     res.status(500).json(error);
   }

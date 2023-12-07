@@ -47,8 +47,16 @@ const createNewSpell = async (req, res) => {
 
 const getAllSpells = async (req, res) => {
   try {
-    const allSpells = await dndSpellsSchema.find();
-    res.status(200).json(allSpells);
+    const cacheKey = "allSpells";
+    const cachedSpells = await cache.get(cacheKey);
+
+    if (cachedSpells) {
+      res.status(200).json(cachedSpells);
+    } else {
+      const allSpells = await dndSpellsSchema.find();
+      cache.set(cacheKey, allSpells, 240);
+      res.status(200).json(allSpells);
+    }
   } catch (error) {
     res.status(500).json(error);
   }
@@ -57,8 +65,16 @@ const getAllSpells = async (req, res) => {
 const getSpellById = async (req, res) => {
   const { id } = req.params;
   try {
-    const spellById = await dndSpellsSchema.findById(id);
-    res.status(200).json(spellById);
+    const cacheKey = `spells:${id}`;
+    const cachedSpells = await cache.get(cacheKey);
+
+    if (cachedSpells) {
+      res.status(200).json(cachedSpells);
+    } else {
+      const spellById = await dndSpellsSchema.findById(id);
+      cache.set(cacheKey, spells, 240);
+      res.status(200).json(spellById);
+    }
   } catch (error) {
     res.status(500).json(error);
   }
@@ -106,6 +122,8 @@ const updateSpellById = async (req, res) => {
       },
       { new: true }
     );
+    const cacheKey = `spells:${id}`;
+    await cache.del(cacheKey);
     res.status(200).json(updatedSpell);
   } catch (error) {
     res.status(500).json(error);
@@ -125,8 +143,16 @@ const deleteSpellById = async (req, res) => {
 const getSpellByName = async (req, res) => {
   const { name } = req.params;
   try {
-    const spellByName = await dndSpellsSchema.find({ name: name });
-    res.status(200).json(spellByName);
+    const cacheKey = `spells:${name}`;
+    const cachedSpells = await cache.get(cacheKey);
+
+    if (cachedSpells) {
+      res.status(200).json(cachedSpells);
+    } else {
+      const spellByName = await dndSpellsSchema.find({ name: name });
+      cache.set(cacheKey, spells, 240);
+      res.status(200).json(spellByName);
+    }
   } catch (error) {
     res.status(500).json(error);
   }
