@@ -1,4 +1,5 @@
 const dndSpellsSchema = require("../models/dndspellsschema");
+const cache = require("../../cache/cache");
 
 const createNewSpell = async (req, res) => {
   const {

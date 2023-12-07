@@ -12,7 +12,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const client = require("./src/cache/redisClient");
 const morganSteam = require("./src/log/morganSteam");
-const { checkToken, getUserNameFromToken } = require("./src/auth/token");
+const { checkToken} = require("./src/auth/token");
 
 app.use(morganSteam);
 WebSocket(server);

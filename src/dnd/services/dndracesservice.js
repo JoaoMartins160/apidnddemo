@@ -1,4 +1,5 @@
 const dndRaceSchema = require("../models/dndracesschema");
+const cache = require("../../cache/cache");
 
 const createNewRace = async (req, res) => {
   const {

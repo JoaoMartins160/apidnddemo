@@ -1,4 +1,5 @@
 const dndEquipSchema = require("../models/dndequipschema");
+const cache = require("../../cache/cache");
 
 const createNewEquip = async (req, res) => {
   const {
