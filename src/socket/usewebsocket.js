@@ -1,4 +1,6 @@
-const WebSocketService = require("../../socket/websocket");
+const WebSocketService = require("./websocket");
+const express = require("express");
+const https = require("https");
 const app = express();
 const server = https.createServer(app);
 const webSocketService = WebSocketService(server);

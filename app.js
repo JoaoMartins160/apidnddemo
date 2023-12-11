@@ -13,12 +13,16 @@ const xss = require("xss-clean");
 const client = require("./src/cache/redisClient");
 const morganSteam = require("./src/log/morganSteam");
 const { checkToken } = require("./src/auth/token");
+const fs = require("fs");
+const path = require("path");
+const cors = require("cors");
 
 app.use(morganSteam);
 WebSocket(server);
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
 
 app.use(
   "/api",
@@ -52,8 +56,8 @@ const limiter = rateLimit({
 });
 
 const credentials = {
-  key: fs.redFileSync(path.join(__dirname, "cert", "key.pem")),
-  cert: fs.redFileSync(path.join(__dirname, "cert", "cert.pem")),
+  key: fs.readFileSync(path.join(__dirname, "cert", "key.pem")),
+  cert: fs.readFileSync(path.join(__dirname, "cert", "cert.pem")),
 };
 
 const httpsServer = https.createServer(credentials, app);
