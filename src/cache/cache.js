@@ -17,4 +17,22 @@ const get = async (key) => {
   }
 };
 
-module.exports = { set, get };
+const deleteKey = async (key) => {
+  try {
+    await client.del(key);
+    console.log(`Chave ${key} removida`);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const clearAll = async () => {
+  try {
+    await client.flushdb();
+    console.log("Todas as chaves removidas");
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+module.exports = { set, get, deleteKey, clearAll };

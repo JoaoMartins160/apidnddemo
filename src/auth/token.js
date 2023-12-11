@@ -32,6 +32,7 @@ function getUserNameFromToken(req, res, next) {
     const payload = jwt.verify(token, acesssecret);
 
     res.locals.userName = payload.UserInfo.name;
+    console.log(res.locals.userName);
     next();
   } catch (error) {
     res.status(400).json({ msg: "Token inválido!" });
