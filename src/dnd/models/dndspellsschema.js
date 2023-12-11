@@ -34,7 +34,6 @@ const dndSpellsSchema = new schema({
   attack_type: String,
   damage: {
     damage_type: {
-      name: String,
       type: String,
       enum: damageenum,
     },

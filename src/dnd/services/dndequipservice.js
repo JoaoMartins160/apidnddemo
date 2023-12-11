@@ -1,7 +1,7 @@
 const dndEquipSchema = require("../models/dndequipschema");
 const cache = require("../../cache/cache");
 
-const createNewEquip = async (req, res) => {
+const createNewEquip = (webSocketService) => async (req, res) => {
   const {
     name,
     equipment_category,
@@ -42,6 +42,8 @@ const createNewEquip = async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
+  webSocketService.notifyClients("Um novo equipamento foi criado", req.userId);
+  res.status(201).send();
 };
 
 const getAllEquips = async (req, res) => {
@@ -52,9 +54,9 @@ const getAllEquips = async (req, res) => {
     if (cachedEquips) {
       res.status(200).json(cachedEquips);
     } else {
-      const allEquips = await dndEquipSchema.find();
-      cache.set(cacheKey, allEquips, 240);
-      res.status(200).json(allEquips);
+      const equip = await dndEquipSchema.find();
+      cache.set(cacheKey, equip, 240);
+      res.status(200).json(equip);
     }
   } catch (error) {
     res.status(500).json(error);
@@ -70,16 +72,16 @@ const getEquipById = async (req, res) => {
     if (cachedEquips) {
       res.status(200).json(cachedEquips);
     } else {
-      const equipById = await dndEquipSchema.findById(id);
-      cache.set(cacheKey, equips, 240);
-      res.status(200).json(equipById);
+      const equip = await dndEquipSchema.findById(id);
+      cache.set(cacheKey, equip, 240);
+      res.status(200).json(equip);
     }
   } catch (error) {
     res.status(500).json(error);
   }
 };
 
-const updateEquipById = async (req, res) => {
+const updateEquipById = (webSocketService) => async (req, res) => {
   const { id } = req.params;
   const {
     name,
@@ -125,9 +127,14 @@ const updateEquipById = async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
+  webSocketService.notifyClients(
+    `O equipamento ${req.params.id} foi atualizado`,
+    req.userId
+  );
+  res.status(200).send();
 };
 
-const deleteEquipById = async (req, res) => {
+const deleteEquipById = (webSocketService) => async (req, res) => {
   const { id } = req.params;
   try {
     const deletedEquip = await dndEquipSchema.findByIdAndDelete(id);
@@ -135,6 +142,11 @@ const deleteEquipById = async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
+  webSocketService.notifyClients(
+    `O equipamento ${req.params.id} foi deletado`,
+    req.userId
+  );
+  res.status(200).send();
 };
 
 const getEquipByName = async (req, res) => {
@@ -146,9 +158,11 @@ const getEquipByName = async (req, res) => {
     if (cachedEquips) {
       res.status(200).json(cachedEquips);
     } else {
-      const equipByName = await dndEquipSchema.find({ name: name });
+      const equip = await dndEquipSchema.find({
+        name: { $regex: name, $options: "i" },
+      });
       cache.set(cacheKey, equip, 240);
-      res.status(200).json(equipByName);
+      res.status(200).json(equip);
     }
   } catch (error) {
     res.status(500).json(error);

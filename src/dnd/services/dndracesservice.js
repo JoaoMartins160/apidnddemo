@@ -1,7 +1,7 @@
 const dndRaceSchema = require("../models/dndracesschema");
 const cache = require("../../cache/cache");
 
-const createNewRace = async (req, res) => {
+const createNewRace = (webSocketService) => async (req, res) => {
   const {
     name,
     desc,
@@ -28,6 +28,8 @@ const createNewRace = async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
+  webSocketService.notifyClients("Uma nova raça foi criada", req.userId);
+  res.status(201).send();
 };
 
 const getAllRaces = async (req, res) => {
@@ -38,9 +40,9 @@ const getAllRaces = async (req, res) => {
     if (cachedRaces) {
       res.status(200).json(cachedRaces);
     } else {
-      const allRaces = await dndRaceSchema.find();
-      cache.set(cacheKey, allRaces, 240);
-      res.status(200).json(allRaces);
+      const race = await dndRaceSchema.find();
+      cache.set(cacheKey, race, 240);
+      res.status(200).json(race);
     }
   } catch (error) {
     res.status(500).json(error);
@@ -56,16 +58,16 @@ const getRaceById = async (req, res) => {
     if (cachedRaces) {
       res.status(200).json(cachedRaces);
     } else {
-      const raceById = await dndRaceSchema.findById(id);
-      cache.set(cacheKey, races, 240);
-      res.status(200).json(raceById);
+      const race = await dndRaceSchema.findById(id);
+      cache.set(cacheKey, race, 240);
+      res.status(200).json(race);
     }
   } catch (error) {
     res.status(500).json(error);
   }
 };
 
-const updateRaceById = async (req, res) => {
+const updateRaceById = (webSocketService) => async (req, res) => {
   const { id } = req.params;
   const {
     name,
@@ -97,9 +99,14 @@ const updateRaceById = async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
+  webSocketService.notifyClients(
+    `A raça ${req.params.id} foi atualizada`,
+    req.userId
+  );
+  res.status(200).send();
 };
 
-const deleteRaceById = async (req, res) => {
+const deleteRaceById = (webSocketService) => async (req, res) => {
   const { id } = req.params;
   try {
     const deletedRace = await dndRaceSchema.findByIdAndDelete(id);
@@ -107,6 +114,11 @@ const deleteRaceById = async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
+  webSocketService.notifyClients(
+    `A raça ${req.params.id} foi deletada`,
+    req.userId
+  );
+  res.status(200).send();
 };
 
 const getRaceByName = async (req, res) => {
@@ -118,9 +130,11 @@ const getRaceByName = async (req, res) => {
     if (cachedRaces) {
       res.status(200).json(cachedRaces);
     } else {
-      const raceByName = await dndRaceSchema.find({ name: name });
+      const races = await dndRaceSchema.find({
+        name: { $regex: name, $options: "i" },
+      });
       cache.set(cacheKey, races, 240);
-      res.status(200).json(raceByName);
+      res.status(200).json(races);
     }
   } catch (error) {
     res.status(500).json(error);

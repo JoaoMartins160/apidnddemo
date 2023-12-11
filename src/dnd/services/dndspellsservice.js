@@ -1,7 +1,7 @@
 const dndSpellsSchema = require("../models/dndspellsschema");
 const cache = require("../../cache/cache");
 
-const createNewSpell = async (req, res) => {
+const createNewSpell = (webSocketService) => async (req, res) => {
   const {
     name,
     desc,
@@ -44,6 +44,8 @@ const createNewSpell = async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
+  webSocketService.notifyClients("Um novo feitiço foi criado", req.userId);
+  res.status(201).send();
 };
 
 const getAllSpells = async (req, res) => {
@@ -54,9 +56,9 @@ const getAllSpells = async (req, res) => {
     if (cachedSpells) {
       res.status(200).json(cachedSpells);
     } else {
-      const allSpells = await dndSpellsSchema.find();
-      cache.set(cacheKey, allSpells, 240);
-      res.status(200).json(allSpells);
+      const spells = await dndSpellsSchema.find();
+      cache.set(cacheKey, spells, 240);
+      res.status(200).json(spells);
     }
   } catch (error) {
     res.status(500).json(error);
@@ -72,16 +74,16 @@ const getSpellById = async (req, res) => {
     if (cachedSpells) {
       res.status(200).json(cachedSpells);
     } else {
-      const spellById = await dndSpellsSchema.findById(id);
+      const spells = await dndSpellsSchema.findById(id);
       cache.set(cacheKey, spells, 240);
-      res.status(200).json(spellById);
+      res.status(200).json(spells);
     }
   } catch (error) {
     res.status(500).json(error);
   }
 };
 
-const updateSpellById = async (req, res) => {
+const updateSpellById = (webSocketService) => async (req, res) => {
   const { id } = req.params;
   const {
     name,
@@ -129,9 +131,14 @@ const updateSpellById = async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
+  webSocketService.notifyClients(
+    `O feitiço ${req.params.id} foi atualizado`,
+    req.userId
+  );
+  res.status(200).send();
 };
 
-const deleteSpellById = async (req, res) => {
+const deleteSpellById = (webSocketService) => async (req, res) => {
   const { id } = req.params;
   try {
     const deletedSpell = await dndSpellsSchema.findByIdAndDelete(id);
@@ -139,6 +146,11 @@ const deleteSpellById = async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
+  webSocketService.notifyClients(
+    `O feitiço ${req.params.id} foi deletado`,
+    req.userId
+  );
+  res.status(200).send();
 };
 
 const getSpellByName = async (req, res) => {
@@ -150,9 +162,11 @@ const getSpellByName = async (req, res) => {
     if (cachedSpells) {
       res.status(200).json(cachedSpells);
     } else {
-      const spellByName = await dndSpellsSchema.find({ name: name });
+      const spells = await dndSpellsSchema.find({
+        name: { $regex: name, $options: "i" },
+      });
       cache.set(cacheKey, spells, 240);
-      res.status(200).json(spellByName);
+      res.status(200).json(spells);
     }
   } catch (error) {
     res.status(500).json(error);
