@@ -1,44 +1,69 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 const express = require("express");
-const jwt = require("jsonwebtoken");
 const app = express();
+const rateLimit = require("express-rate-limit");
 const db = `mongodb://apidndfullstack:tfNqdeoeN8u.@mongodb:27017`;
 const cookieParser = require("cookie-parser");
-const http = require('http');
-const WebSocket = require('./src/socket/websocket');
-const server = http.createServer(app);
+const https = require("https");
+const WebSocket = require("./src/socket/websocket");
+const server = https.createServer(app);
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const client = require("./src/cache/redisClient");
 const morganSteam = require("./src/log/morganSteam");
-const { checkToken} = require("./src/auth/token");
+const { checkToken } = require("./src/auth/token");
 
 app.use(morganSteam);
 WebSocket(server);
 
-
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api", checkToken, require("./src/dnd/controllers/dndmonstercontroller"));
-app.use("/api", checkToken, require("./src/dnd/controllers/dndequipcontroller"));
-app.use("/api", checkToken, require("./src/dnd/controllers/dndspellscontroller"));
-app.use("/api", checkToken, require("./src/dnd/controllers/dndracescontroller"));
+app.use(
+  "/api",
+  checkToken,
+  require("./src/dnd/controllers/dndmonstercontroller")
+);
+app.use(
+  "/api",
+  checkToken,
+  require("./src/dnd/controllers/dndequipcontroller")
+);
+app.use(
+  "/api",
+  checkToken,
+  require("./src/dnd/controllers/dndspellscontroller")
+);
+app.use(
+  "/api",
+  checkToken,
+  require("./src/dnd/controllers/dndracescontroller")
+);
 app.use("/", require("./src/user/controllers/usercontroller"));
 
 //Data sanitization
 app.use(mongoSanitize());
-app.use(xss())
+app.use(xss());
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
+const credentials = {
+  key: fs.redFileSync(path.join(__dirname, "cert", "key.pem")),
+  cert: fs.redFileSync(path.join(__dirname, "cert", "cert.pem")),
+};
+
+const httpsServer = https.createServer(credentials, app);
 
 mongoose
   .connect(db)
   .then(() => {
-    server.listen(8080);
+    httpsServer.listen(8080);
     console.log("Conexão com MongoDB estabelecida");
   })
   .catch((err) => {
     console.error("Não foi possível conectar ao MongoDB", err);
   });
-
